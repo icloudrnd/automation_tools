@@ -1,0 +1,21 @@
+<script type="text/javascript">
+function update_launch_source_displayed_fields(field) {
+        var $this = $(field),
+            base_type = $this.val();
+        $this.closest(".form-group").nextAll().hide();
+        switch (base_type) {
+            case "yum":
+                $("#id_repo, #id_name, #id_baseurl, #id_mirrorlist").closest(".form-group").show();
+                break;
+            case "zypper":
+                $("#id_repo, #id_baseurl, #id_enabled, #id_refresh, #id_cache, #id_gpgcheck, #id_gpgautoimport").closest(".form-group").show();
+                break;
+        }
+    }
+    $(document).on('change', '.workflow #id_repository_type', function(evt) {
+        update_launch_source_displayed_fields(this);
+    });
+</script>
+{% extends "horizon/common/_workflow_step.html" %}
+{% block modal-footer %}
+{% endblock %}

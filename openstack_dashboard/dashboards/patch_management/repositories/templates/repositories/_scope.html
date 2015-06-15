@@ -1,0 +1,19 @@
+<script type="text/javascript">
+$( "#id_grainpair" ).hide();
+$("#id_grainpair").change(function() {
+
+      $(this).each(function()
+      {
+          // Add $(this).val() to your list
+          var grainpairmultiselect_size = (($("#id_grainpairmultiselect").size()).toString()); 
+
+          $("#id_grainpairmultiselect").append('<li><label for="id_grainpairmultiselect_'+grainpairmultiselect_size+'"><input id="id_grainpairmultiselect_'+grainpairmultiselect_size+'" name="grainpairmultiselect" type="checkbox" value="'+$(this).val()+'" />'+$(this).val()+'</label></li>');
+
+      });
+    $('#id_grainpair').find('option').remove().end();
+;
+});
+</script>
+{% extends "horizon/common/_workflow_step.html" %}
+{% block modal-footer %}
+{% endblock %}

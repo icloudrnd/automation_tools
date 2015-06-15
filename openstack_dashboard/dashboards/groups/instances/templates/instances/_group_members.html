@@ -1,0 +1,21 @@
+{% load i18n %}
+<a href="#" id="members_{{ group_name }}" class="link-popover" rel="popover" tabindex="0" data-trigger="focus" data-content="
+<table class='table table-bordered'>
+{% if group_members %}
+    {% for member in group_members %}
+        <tr><td>{{ member }}</td></tr>
+    {% endfor %}
+{% else %}
+    <tr><th>Members list is empty</th></tr>
+{% endif %}
+</table>
+" data-original-title="{% blocktrans %}Group {{ group_name }} members:">Members list{% endblocktrans %}</a>
+<script type="text/javascript" charset="utf-8">
+$(function () {
+  var $flavor = $("#members_{{ group_name }}");
+  // NOTE(tsufiev): check this in case this template is used in network topology -> terminate instance
+  if ( $flavor.popover ) {
+    $flavor.popover({html:true});
+  }
+});
+</script>

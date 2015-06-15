@@ -1,0 +1,194 @@
+from horizon import workflows
+from horizon import forms
+from horizon.forms import fields
+
+from django.utils.translation import ugettext_lazy as _
+
+from django.views.decorators.debug import sensitive_variables
+
+from openstack_dashboard.api.salt_database_api import get_groups
+
+
+class SetRpmRepositoryDetailsAction(workflows.Action):
+
+    repository_type = forms.ChoiceField(label=_("Choose repo type"),required=False)
+
+    repo = forms.CharField(label=_("Repository Name"),
+                           max_length=255)
+
+    comments = forms.CharField(label=_("Comments"),
+                               max_length=2048,
+                               initial="#",)
+
+    enabled = forms.BooleanField(label=_("Enabled"),
+                                             initial=True,
+                                             required=False,
+                                             help_text=_("Enable this repository"))
+
+
+    failover_method = forms.ChoiceField(label=_("Failover method"),required=False)
+
+
+    repo_file = forms.CharField(label=_("File"),
+                           max_length=4096)
+
+    gpgcheck = forms.BooleanField(label=_("gpgcheck"),
+                                             initial=True,
+                                             required=False)
+
+    gpgkey = forms.CharField(label=_("gpgkey file path"),
+                           max_length=4096)
+
+    metalink = forms.CharField(label=_("Metalink"),
+                           max_length=4096)
+
+    name = forms.CharField(label=_("Name"),
+                           max_length=255)
+
+    skip_if_unavailable = forms.BooleanField(label=_("Skip if Unavailable"),
+                                             initial=True,
+                                             required=False)
+
+    def __init__(self, request, context, *args, **kwargs):
+
+        super(SetRpmRepositoryDetailsAction, self).__init__(request, context, *args, **kwargs)
+
+
+        self.fields['repository_type'].choices = [('zypper','zypper'),('yum','yum')]
+
+    def clean(self):
+
+        print ">> clean >>"
+
+
+
+
+    class Meta(object):
+
+        name = _("Details")
+
+SELECT_GRAIN_URL="horizon:patch_management:repositories:select_grain"
+
+# def validate(self, value): 
+
+class MultipleChoiceFieldWithoutValidate(forms.MultipleChoiceField):
+
+    def validate(self, value):
+        pass
+
+    
+
+class SetScopeForNewRpmRepositoryDetailsAction(workflows.Action):
+
+
+    grainpairmultiselect = MultipleChoiceFieldWithoutValidate(label=_("Available grain pairs"),
+                                        widget=forms.CheckboxSelectMultiple(),
+                                        required=True,
+                                        error_messages={
+                                            'required': _(
+                                                "At least one criteria must"
+                                                " be specified.")},
+                                        help_text=_("Create repository"
+                                                    " on instances matching those grains"))
+
+    grainpair = forms.DynamicChoiceField(label=_("New grainpair"),
+                                       required=False,
+                                       add_item_link=SELECT_GRAIN_URL)
+
+    group_multiselect = forms.MultipleChoiceField(label=_("Available member groups"),
+                                        widget=forms.CheckboxSelectMultiple(),
+                                        required=True,
+                                        error_messages={
+                                            'required': _(
+                                                "At least one criteria must"
+                                                " be specified.")},
+                                        help_text=_("Create repository"
+                                                    " on instances from those groups"))
+
+    def __init__(self, request, *args, **kwargs):
+
+        super(SetScopeForNewRpmRepositoryDetailsAction, self).__init__(request, *args, **kwargs)
+
+        groups_tuple = []
+
+        for group in get_groups():
+
+            groups_tuple.append((str(group.id),str(group.id)))
+
+        if groups_tuple:
+
+            self.fields['group_multiselect'].choices=groups_tuple
+                    
+                    
+
+
+    class Meta(object):
+        name = _("Scope")
+
+
+class SetRepositoryChoice(workflows.Step):
+
+    action_class = SetRpmRepositoryDetailsAction
+
+    template_name = "patch_management/repositories/_details.html"
+
+    def contribute(self, data, context):
+
+        print 'contribute :: >> '
+
+        context['repository_name']=data.get("repository_name","")
+        context['comments']=data.get("comments","")
+        context['enabled']=data.get("enabled","")
+        context['failover_method']=data.get("failover_method","")
+        context['repo_file']=data.get("repo_file","")
+        context['gpgcheck']=data.get("gpgcheck","")
+        context['gpgkey']=data.get("gpgkey","")
+        context['metalink']=data.get("metalink","")
+        context['name']=data.get("name","")
+        context['skip_if_unavailable']=data.get("skip_if_unavailable","")
+
+        return context
+        
+    
+
+class SetScopeForNewRpmRepositoryChoice(workflows.Step):
+
+    action_class = SetScopeForNewRpmRepositoryDetailsAction
+
+    contributes = ('grainpair',)
+
+    template_name = "patch_management/repositories/_scope.html"
+
+    def contribute(self, data, context):
+
+        context['grainpairmultiselect']=data.get('grainpairmultiselect',"")
+        context['group_multiselect']=data.get('group_multiselect',"")
+ 
+        return context
+
+
+
+class CreateRpmRepository(workflows.Workflow):
+
+    slug = "create_repository"
+
+    name = _("Create Repository")
+
+    finalize_button_name = _("Create")
+
+    success_message = _('Scheduled repository creating "%s".')
+
+    failure_message = _('Unable to create repository "%s".')
+
+    success_url = "horizon:patch_management:repositories:index"
+
+    default_steps = (SetRepositoryChoice,SetScopeForNewRpmRepositoryChoice)
+
+    @sensitive_variables('context')
+    def handle(self, request, context):
+
+        print ':-: context :-: '
+        print context
+        print '----------------'
+        print dir(context)
+        print '::::::::::::::::'

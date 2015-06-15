@@ -1,0 +1,19 @@
+{% load i18n %}
+<a href="#" id="repository_options_{{ id }}" class="link-popover" rel="popover" tabindex="0" data-trigger="focus" data-content="
+<table class='table table-bordered'>
+  <tr><th>{% trans 'enabled' %}</th><td>{{enabled }}</td></tr>
+  <tr><th>{% trans 'failovermethod' %}</th><td>{{ failovermethod }}</td></tr>
+  <tr><th>{% trans 'gpgcheck' %}</th><td>{{ gpgcheck }}</td></tr>
+  <tr><th>{% trans 'metadata expire' %}</th><td>{{ metadata_expire }}</td></tr>
+  <tr><th>{% trans 'skip if unavailable' %}</th><td>{{ skip_if_unavailable }}</td></tr>
+</table>
+" data-original-title="{% blocktrans %}Repository {{ id }} options">Options{% endblocktrans %}</a>
+<script type="text/javascript" charset="utf-8">
+$(function () {
+  var $flavor = $("#repository_options_{{ id }}");
+  // NOTE(tsufiev): check this in case this template is used in network topology -> terminate instance
+  if ( $flavor.popover ) {
+    $flavor.popover({html:true});
+  }
+});
+</script>

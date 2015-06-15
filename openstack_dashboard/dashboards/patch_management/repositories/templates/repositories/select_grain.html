@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Find grain" %}{% endblock %}
+
+{% block main %}
+  {% include 'patch_management/repositories/_select_grain.html' %}
+{% endblock %}

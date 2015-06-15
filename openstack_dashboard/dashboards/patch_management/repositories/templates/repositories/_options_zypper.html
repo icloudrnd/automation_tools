@@ -1,0 +1,23 @@
+{% load i18n %}
+<a href="#" id="repository_options_{{ id }}" class="link-popover" rel="popover" tabindex="0" data-trigger="focus" data-content="
+<table class='table table-bordered'>
+  <tr><th>{% trans 'autorefresh' %}</th><td>{{ autorefresh }}</td></tr>
+  <tr><th>{% trans 'cache' %}</th><td>{{ cache  }}</td></tr>
+  <tr><th>{% trans 'enabled' %}</th><td>{{ enabled }}</td></tr>
+  <tr><th>{% trans 'gpgcheck' %}</th><td>{{ gpgcheck }}</td></tr>
+  <tr><th>{% trans 'gpgautoimport' %}</th><td>{{ gpgautoimport }}</td></tr>
+  <tr><th>{% trans 'keeppackages' %}</th><td>{{ keeppackages }}</td></tr>
+  <tr><th>{% trans 'priority' %}</th><td>{{ priority }}</td></tr>
+  <tr><th>{% trans 'refresh' %}</th><td>{{ refresh }}</td></tr>
+  <tr><th>{% trans 'type' %}</th><td>{{ type }}</td></tr>
+</table>
+" data-original-title="{% blocktrans %}Repository {{ id }} options">Options{% endblocktrans %}</a>
+<script type="text/javascript" charset="utf-8">
+$(function () {
+  var $flavor = $("#repository_options_{{ id }}");
+  // NOTE(tsufiev): check this in case this template is used in network topology -> terminate instance
+  if ( $flavor.popover ) {
+    $flavor.popover({html:true});
+  }
+});
+</script>
