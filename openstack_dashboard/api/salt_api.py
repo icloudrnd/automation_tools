@@ -110,7 +110,10 @@ def get_grains(instance_name=None,*args):
 
     grains_list = local.cmd(instance_name,'grains.item',grains_names)
 
-    return grains_list[instance_name]
+    grains_list.get('group_name',None)
+
+    #return grains_list[instance_name]
+    return grains_list.get(instance_name,None)
 
 def minions_list():
 

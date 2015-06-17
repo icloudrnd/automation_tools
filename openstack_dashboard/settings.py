@@ -37,8 +37,9 @@ BIN_DIR = os.path.abspath(os.path.join(ROOT_PATH, '..', 'bin'))
 if ROOT_PATH not in sys.path:
     sys.path.append(ROOT_PATH)
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+ALLOWED_HOSTS = ['*']
 
 SITE_BRANDING = 'OpenStack Dashboard'
 
@@ -49,7 +50,27 @@ LOGIN_REDIRECT_URL = None
 
 
 ROOT_URLCONF = 'openstack_dashboard.urls'
+### 
+###
+SALT_MASTER_CONFIG='/etc/salt/master'
+OS_PACKAGE_SPEC={"deb":["Ubuntu"], 
+                 "rpm":["Fedora","openSUSE"],
+                 "yum":["Fedora"],
+                 "zypper":["openSUSE"]}
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'salt',
+        'USER': 'salt',
+        'PASSWORD': 'salt',
+        'HOST': '10.10.111.48',
+        'PORT': '5432',
+    }
+}
+
+###
+###
 HORIZON_CONFIG = {
     'user_home': 'openstack_dashboard.views.get_user_home',
     'ajax_queue_limit': 10,

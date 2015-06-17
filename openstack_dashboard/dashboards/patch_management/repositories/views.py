@@ -17,7 +17,7 @@ from horizon import workflows
 import workflows as self_workflows
 import forms as self_forms
 
-from tables import YumRepositoriesTable,ZypperRepositoriesTable
+from tables import YumRepositoriesTable,ZypperRepositoriesTable,RepositoryMembersTable
 
 
 class IndexView(tabs.TabbedTableView):
@@ -38,9 +38,21 @@ class CreateRepositoryView(workflows.WorkflowView):
         #initial['repository_type'] = package_manager_name
         #return initial
 
-class SelectGrainView(forms.ModalFormView):
+class RepositoryMembersView(tables.DataTableView):
 
-    print 'select grain class'
+    table_class = RepositoryMembersTable
+    template_name = 'patch_management/repositories/repo_detail.html'
+
+    def get_data(self):
+
+        print  ":: Self ::"
+        print self
+        print dir(self)
+        print "==========="
+        print self.table.kwargs.get('instances',None)
+        print "==========="
+
+class SelectGrainView(forms.ModalFormView):
 
     form_class = self_forms.SelectGrain
     form_id = "select_grain"

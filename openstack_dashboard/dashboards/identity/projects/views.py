@@ -79,6 +79,12 @@ class IndexView(tables.DataTableView):
             project_tables.TenantsTable._meta.pagination_param, None)
         domain_context = self.request.session.get('domain_context', None)
         self._more = False
+
+        print 'identify marker:'
+        print marker
+        print ':===============:'
+        print dir(marker)
+        print ':===============:'
         if policy.check((("identity", "identity:list_projects"),),
                         self.request):
             try:

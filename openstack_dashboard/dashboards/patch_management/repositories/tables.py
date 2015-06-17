@@ -59,6 +59,23 @@ def get_Options_Zypper(instance):
 
 
 
+class ModifyRepositoryMembersLink(tables.LinkAction):
+    name = "modify_repository_members"
+    verbose_name = _("Modify Repository Members")
+    url = "horizon:groups:instances:modify_repository_members"
+    #classes = ("ajax-modal",)
+    icon = "plus"
+
+    def get_link_url(self, datum=None):
+
+        repository_id = getattr(datum,'id')
+
+        url = "horizon:patch_management:repositories:modify_repository_members"
+
+        return reverse(url, args=(repository_id,))
+
+
+
 def get_Comments(instance):
 
     template_name = 'patch_management/repositories/_comments.html'
@@ -90,6 +107,7 @@ class YumRepositoriesTable(tables.DataTable):
         verbose_name = _("Yum Repositories")
         hidden_title = False
         #row_actions = (InstanceUpgradesLink,)
+        row_actions = (ModifyRepositoryMembersLink,)
         table_actions = (CreateRepository,)
         package_manager_name = "yum"
 
@@ -112,6 +130,7 @@ class ZypperRepositoriesTable(tables.DataTable):
         verbose_name = _("Zypper Repositories")
         hidden_title = False
         #row_actions = (InstanceUpgradesLink,)
+        row_actions = (ModifyRepositoryMembersLink,)
         table_actions = (CreateRepository,)
         package_manager_name = "zypper"
 
@@ -133,4 +152,20 @@ class DebRepositoriesTable(tables.DataTable):
         verbose_name = _("Deb Repositories")
         hidden_title = False
         #row_actions = (InstanceUpgradesLink,)
+
+
+
+
+class RepositoryMembersTable(tables.DataTable):
+
+
+    id = tables.Column("id",  verbose_name = _("Member"))
+
+    class Meta:
+        name = "repository_members"
+        verbose_name = _("Repository Members")
+        #table_actions = (AddMemberLink,DeleteMembersAction)
+        #row_actions = (ModifyRepositoryMembersLink,)
+        #row_class = UpdateMemberRow
+
 
