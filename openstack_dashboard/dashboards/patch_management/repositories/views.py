@@ -1,7 +1,7 @@
 from horizon import views
 from horizon import exceptions
 from horizon import tabs
-from tabs import RpmAndDevTabs
+from openstack_dashboard.dashboards.patch_management.repositories.tabs import RpmAndDevTabs
 from horizon import tables, exceptions, forms
 
 from django.utils.translation import ugettext_lazy as _
@@ -48,9 +48,14 @@ class RepositoryMembersView(tables.DataTableView):
         print  ":: Self ::"
         print self
         print dir(self)
+     
         print "==========="
         print self.table.kwargs.get('instances',None)
         print "==========="
+        print "self.table"
+        print self.table
+        print dir(self.table)
+        print "---------"
 
 class SelectGrainView(forms.ModalFormView):
 

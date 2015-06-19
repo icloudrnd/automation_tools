@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 
 from horizon import tables,exceptions
 
+
 #
 # actions
 
@@ -75,6 +76,32 @@ class ModifyRepositoryMembersLink(tables.LinkAction):
         return reverse(url, args=(repository_id,))
 
 
+def get_repository_members(repo):
+
+    from views import RepositoryMembersView
+
+    class Empty_class():
+
+        pass
+
+    class RepositoryMembersViewMod(RepositoryMembersView):
+
+        def get_data(self):
+
+            instances = []
+
+            for instance in repo.instances:
+
+                empty_instance = Empty_class()
+
+                empty_instance.id = instance
+ 
+                instances.append(empty_instance) 
+
+            return instances 
+
+    return RepositoryMembersViewMod.as_view()
+
 
 def get_Comments(instance):
 
@@ -122,6 +149,7 @@ class ZypperRepositoriesTable(tables.DataTable):
     url = tables.Column("url",  verbose_name = _("url"))
     metadataPath = tables.Column("metadataPath",  verbose_name = _("metadataPath"))
     packages = tables.Column("packagesPath",  verbose_name = _("packagesPath"))
+    instances=tables.Column(get_repository_members, verbose_name = _("Instances"))
 
 
     class Meta:

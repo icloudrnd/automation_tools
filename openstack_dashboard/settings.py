@@ -53,6 +53,8 @@ ROOT_URLCONF = 'openstack_dashboard.urls'
 ### 
 ###
 SALT_MASTER_CONFIG='/etc/salt/master'
+SALT_SLS_DIR = '/srv/salt'
+SALT_SLS_REPO_DIR = '/srv/salt/repos'
 OS_PACKAGE_SPEC={"deb":["Ubuntu"], 
                  "rpm":["Fedora","openSUSE"],
                  "yum":["Fedora"],
