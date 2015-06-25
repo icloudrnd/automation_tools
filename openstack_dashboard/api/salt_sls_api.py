@@ -229,7 +229,9 @@ def get_directory_content(dir_path = None):
             
 
 
-def list_repos(env_name=None):
+def list_something_inside_by_key(env_name=None,key_phrase="pkgrepo.managed"):
+
+    """By default as you can see it returns repolists """
 
 
     repo_content = []
@@ -252,17 +254,24 @@ def list_repos(env_name=None):
  
                         sls_file = open(sls_file_name,"r")
 
-                        sls_file_data = yaml.load('\n'.join(sls_file.readlines()))
+                        if sls_file_name.endswith(".swp")==False:
 
-                        sls_file.close()
+                            sls_file_data = yaml.load('\n'.join(sls_file.readlines()))
+
+                            sls_file.close()
+                        else:
+
+                            sls_file_data = None
+
+                            sls_file.close() 
+
+                        
 
                         if (isinstance(sls_file_data, dict)):
 
-                            repo_content.append(SlsGoFru(hash=sls_file_data,phrase="pkgrepo.managed").found_repos)
+                            repo_content.append(SlsGoFru(hash=sls_file_data,phrase=key_phrase).found_repos)
 
         else:
-
-            print ">>else<<"
 
             env_dirs = get_environment(env_name)
 
@@ -280,13 +289,20 @@ def list_repos(env_name=None):
            
                 sls_file = open(sls_file_name,"r")
 
-                sls_file_data = yaml.load('\n'.join(sls_file.readlines()))
+                if sls_file_name.endswith(".swp")==False:
 
-                sls_file.close()
+                    sls_file_data = yaml.load('\n'.join(sls_file.readlines()))
+
+                    sls_file.close()
+                else:
+
+                    sls_file_data = None
+
+                    sls_file.close()
 
                 if (isinstance(sls_file_data, dict)):
 
-                    repo_content.append(SlsGoFru(hash=sls_file_data,phrase="pkgrepo.managed").found_repos)
+                    repo_content.append(SlsGoFru(hash=sls_file_data,phrase=key_phrase).found_repos)
 
         return repo_content 
 
@@ -324,5 +340,45 @@ def highstate(instance_name="*"):
 
 def list_instance_subscription(instance_name = None , env_name = None):
 
+    if env_name == None:
 
-    pass
+        data = []
+
+        environments = get_environment()
+
+        for env in environments:
+
+            for directory in environments[env]:
+
+                content=get_directory_content(dir_path=directory)
+
+                for sls_file_name in content:
+
+                    sls_file = open(sls_file_name,"r")
+
+                    if sls_file_name.endswith(".swp")==False:
+
+                        sls_file_data = yaml.load('\n'.join(sls_file.readlines()))
+
+                        sls_file.close()
+
+                    else:
+                        sls_file_data = None
+                        sls_file.close()
+                        continue
+
+                    if (isinstance(sls_file_data, dict)):
+                        
+                        collected_data = (SlsGoFru(hash=sls_file_data,phrase=instance_name).found_repos)
+                        if (collected_data not in data) and (collected_data!={}):
+                            data.append(collected_data)
+
+        return data
+
+                    
+        
+    else:
+
+    
+
+        pass
