@@ -9,7 +9,8 @@ from openstack_dashboard.settings import SALT_SLS_REPO_DIR
 import yaml
 import operator
 from os import listdir
-from os.path import isfile
+from os.path import isfile,isdir
+
 
 class SlsGoFru():
 
@@ -34,6 +35,42 @@ class SlsGoFru():
                     found_repos[key] = instance.found_repos[key]
 
         setattr(self, 'found_repos', found_repos)
+
+class DirGoFru():
+
+    def __init__(self, dir_path = None):
+
+        if dir_path != None:
+
+            dir_content=getattr(self,'dir_content',[])
+
+            try:
+
+                content=listdir(dir_path)
+
+            except OSError:
+
+                return dir_files
+
+            for sls_file_name in content:
+
+                full_sls_path = (dir_path+"/"+sls_file_name)
+
+                if isfile(full_sls_path):
+
+                    dir_content.append(full_sls_path)
+
+                elif isdir(full_sls_path):
+
+                    new_dir = DirGoFru(dir_path = full_sls_path).dir_content
+
+                    for file_path in new_dir:
+
+                        dir_content.append(file_path)
+
+
+            setattr(self, 'dir_content', dir_content)
+
 
 
 
@@ -122,26 +159,14 @@ def sls_is_repofile(sls_file_hash=None):
 
         
         sorted_table = sorted(table.items(), key=operator.itemgetter(1))
+
         (repo_name,count)=sorted_table.pop()
+
         if count == 0:
             return False
         else:
             return repo_name
 
-
-         
-     
-              
-
-            
-
-    
-    
-
-
-
-    
-                            
 
 
 def create_repo():
@@ -161,11 +186,11 @@ def edit_repo():
 def get_environment(env_name=None):
 
     try:
-
         
         master_config_file = open(SALT_MASTER_CONFIG,"r")
         master_config = yaml.load('\n'.join(master_config_file.readlines()))
         master_config_file.close()
+
         if env_name == None:
  
             return master_config.get("file_roots",None)
@@ -185,16 +210,33 @@ def get_environment(env_name=None):
 
 
 
+def get_directory_content(dir_path = None):
+
+    if dir_path != None:
+
+        dir_files = []
+
+        try:
+
+            dir_files=DirGoFru(dir_path=dir_path).dir_content
+
+            return dir_files
+
+        except OSError:
+
+            return dir_files
+            
+            
+
+
 def list_repos(env_name=None):
 
 
-    class EmptyClass():
-  
-        pass
+    repo_content = []
+
 
     try:
 
-        dir_content = []
 
         if env_name == None:
 
@@ -204,56 +246,54 @@ def list_repos(env_name=None):
 
                 for directory in environments[env]:
 
-                    content=listdir(directory)
+                    content=get_directory_content(dir_path=directory)
 
                     for sls_file_name in content:
-
-                        full_sls_path = (directory+"/"+sls_file_name) 
-
-                        if isfile(full_sls_path):
  
-                            sls_file = open(full_sls_path,"r")
+                        sls_file = open(sls_file_name,"r")
 
-                            sls_file_data = yaml.load('\n'.join(sls_file.readlines()))
+                        sls_file_data = yaml.load('\n'.join(sls_file.readlines()))
 
-                            if (isinstance(sls_file_data, dict)):
+                        sls_file.close()
 
-                                for data in sls_file_data.keys():
+                        if (isinstance(sls_file_data, dict)):
 
-                                    if (isinstance(sls_file_data[data], dict)):
-     
-                                        for key in sls_file_data[data]:
-
-                                            print key
-                                            
-                                            if sls_is_repofile(data[key]) != False:
-
-                                                dir_content.append({sls_is_repofile(data[key]):data[key]})
-
-                                                                   
-
-
-
+                            repo_content.append(SlsGoFru(hash=sls_file_data,phrase="pkgrepo.managed").found_repos)
 
         else:
-             env_path = get_environment(env_name)
-             dir_content=listdir(env_path)
 
-             for repo_file in dir_content:
+            print ">>else<<"
+
+            env_dirs = get_environment(env_name)
+
+            env_files = []
+
+            for env_dir in env_dirs:
+
+                content=get_directory_content(dir_path=env_dir) 
+
+                for env_file in content:
+
+                    env_files.append(env_file)
+
+            for sls_file_name in env_files:
            
-                 sls_file = open(env_path+"/"+repo_file)
-                 sls_file_data = yaml.load('\n'.join(sls_file.readlines()))
+                sls_file = open(sls_file_name,"r")
 
-            
+                sls_file_data = yaml.load('\n'.join(sls_file.readlines()))
 
-        return dir_content 
+                sls_file.close()
+
+                if (isinstance(sls_file_data, dict)):
+
+                    repo_content.append(SlsGoFru(hash=sls_file_data,phrase="pkgrepo.managed").found_repos)
+
+        return repo_content 
 
     except OSError:
 
         print 'No such file or directory: %s'%(SALT_SLS_REPO_DIR)
         return False
-
-    pass
 
 
 def subscribe_instance_to_repo():
@@ -278,3 +318,11 @@ def highstate(instance_name="*"):
     info=local.cmd(instance_name,'state.highstate')
 
     return info
+
+
+
+
+def list_instance_subscription(instance_name = None , env_name = None):
+
+
+    pass
