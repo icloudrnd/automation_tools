@@ -11,6 +11,55 @@ import operator
 from os import listdir
 from os.path import isfile,isdir
 
+class SlsGoFru_HighLevelKey():
+
+
+    def __init__(self, high_level_key = None  , key_of_incoming_hash = None  ,  hash=None , phrase=None):
+
+        repos_inside_high_level_key=getattr(self,'repos_inside_high_level_key',{})
+
+        if high_level_key == None:
+
+            for key in hash.keys():
+
+                if phrase == key:
+
+                    if key_of_incoming_hash!= None:
+
+                        repos_inside_high_level_key[key_of_incoming_hash] = hash[key]
+
+                elif (isinstance(hash[key], dict)):
+
+                    instance = SlsGoFru_HighLevelKey(high_level_key = None, key_of_incoming_hash = key , hash=hash[key],phrase=phrase)
+
+                    for key in instance.repos_inside_high_level_key.keys():
+
+                        repos_inside_high_level_key[key] = instance.repos_inside_high_level_key[key]
+
+            setattr(self, 'repos_inside_high_level_key', repos_inside_high_level_key)
+
+
+        else:
+
+            if (isinstance(hash, dict)):
+
+                for key in hash.keys():
+
+                    if (high_level_key == key):
+
+                        instance = SlsGoFru_HighLevelKey(high_level_key = None, key_of_incoming_hash = key , hash=hash[key],phrase=phrase)
+
+                    else:
+
+                        instance = SlsGoFru_HighLevelKey(high_level_key = high_level_key, key_of_incoming_hash = key , hash=hash[key],phrase=phrase)
+
+                    for key in instance.repos_inside_high_level_key.keys():
+
+                        repos_inside_high_level_key[key] = instance.repos_inside_high_level_key[key]
+
+            setattr(self, 'repos_inside_high_level_key', repos_inside_high_level_key)
+
+
 
 class SlsGoFru():
 
@@ -241,7 +290,6 @@ def list_something_inside_by_key(env_name=None,key_phrase="pkgrepo.managed"):
 
     """By default as you can see it returns repolists """
 
-
     repo_content = []
 
 
@@ -358,6 +406,16 @@ def list_instance_repository_subscription(instance_name = None , env_name = None
 
         all_repos_in_all_environments = list_something_inside_by_key(key_phrase="pkgrepo.managed")
 
+        repositories = list_something_inside_by_key(key_phrase="pkgrepo.managed")
+
+        repository_names = []
+
+        for repository_name in repositories.keys():
+
+            repository_names.append(repository_name)
+
+      
+
         for env in environments:
 
             for directory in environments[env]:
@@ -387,6 +445,14 @@ def list_instance_repository_subscription(instance_name = None , env_name = None
                         collected_data = (SlsGoFru(hash=sls_file_data,phrase=instance_name).found_repos)
 
                         if (collected_data not in data) and (collected_data!={}):
+
+                            for repository_highlevel_name in collected_data[env]:
+
+                                if repository_highlevel_name not in repository_names:
+
+                                   pass 
+
+                            
 
                             print "-- collected data --"
                             print collected_data
