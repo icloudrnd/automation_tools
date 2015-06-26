@@ -14,6 +14,14 @@ from os.path import isfile,isdir
 
 class SlsGoFru():
 
+    # Example:
+    #   Input:
+    #   hash= {    'a': {'B': {1: 2}},      1: 2,      'b': {1: 2, 3: {'1': { '3': {'a': 1, '3': 2}  }  } } ,      '4': { '3': {1: 2, 3: 4} }   }
+    #   phrase = "3"
+    #   key_of_incoming_hash = None (always use None)
+    #   Output:
+    #   {'1': {'a': 1, '3': 2}, '4': {1: 2, 3: 4}}
+
     def __init__(self, key_of_incoming_hash  = None  ,  hash=None , phrase=None):
 
         found_repos=getattr(self,'found_repos',{})
@@ -254,12 +262,12 @@ def list_something_inside_by_key(env_name=None,key_phrase="pkgrepo.managed"):
  
                         sls_file = open(sls_file_name,"r")
 
-                        if sls_file_name.endswith(".swp")==False:
+                        try:
 
                             sls_file_data = yaml.load('\n'.join(sls_file.readlines()))
 
                             sls_file.close()
-                        else:
+                        except:
 
                             sls_file_data = None
 
@@ -289,12 +297,12 @@ def list_something_inside_by_key(env_name=None,key_phrase="pkgrepo.managed"):
            
                 sls_file = open(sls_file_name,"r")
 
-                if sls_file_name.endswith(".swp")==False:
+                try:
 
                     sls_file_data = yaml.load('\n'.join(sls_file.readlines()))
 
                     sls_file.close()
-                else:
+                except:
 
                     sls_file_data = None
 
@@ -338,13 +346,17 @@ def highstate(instance_name="*"):
 
 
 
-def list_instance_subscription(instance_name = None , env_name = None):
+def list_instance_repository_subscription(instance_name = None , env_name = None):
+
+    
 
     if env_name == None:
 
         data = []
 
         environments = get_environment()
+
+        all_repos_in_all_environments = list_something_inside_by_key(key_phrase="pkgrepo.managed")
 
         for env in environments:
 
@@ -356,21 +368,29 @@ def list_instance_subscription(instance_name = None , env_name = None):
 
                     sls_file = open(sls_file_name,"r")
 
-                    if sls_file_name.endswith(".swp")==False:
+                    try:
 
                         sls_file_data = yaml.load('\n'.join(sls_file.readlines()))
 
                         sls_file.close()
 
-                    else:
+                    except:
+
                         sls_file_data = None
+
                         sls_file.close()
+
                         continue
 
                     if (isinstance(sls_file_data, dict)):
                         
                         collected_data = (SlsGoFru(hash=sls_file_data,phrase=instance_name).found_repos)
+
                         if (collected_data not in data) and (collected_data!={}):
+
+                            print "-- collected data --"
+                            print collected_data
+                            print "-- collected data --"
                             data.append(collected_data)
 
         return data
