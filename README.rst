@@ -1,5 +1,5 @@
 =============================
-Horizon (OpenStack Dashboard)
+SaltStack web-gui based on Horizon (OpenStack Dashboard)
 =============================
 
 Horizon is a Django-based project aimed at providing a complete OpenStack
@@ -49,3 +49,36 @@ The source is maintained in the ``doc/source`` directory using
     $ tools/with_venv.sh sphinx-build doc/source doc/build/html
 
 Results are in the ``doc/build/html`` directory
+
+Building Contributor Documentation
+==================================
+
+Extra settings:
+
+Please modify this according to your environment:
+
+
+
+###
+###
+::
+SALT_MASTER_CONFIG='/etc/salt/master'
+SALT_SLS_DIR = '/srv/salt'
+SALT_SLS_REPO_DIR = '/srv/salt/repos'
+OS_PACKAGE_SPEC={"deb":["Ubuntu"],
+                 "rpm":["Fedora","openSUSE"],
+                 "yum":["Fedora"],
+                 "zypper":["openSUSE"]}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'salt',
+        'USER': 'salt',
+        'PASSWORD': 'top_secret_password',
+        'HOST': '11.22.33.44',
+        'PORT': '5432',
+    }
+}
+###
+###
+
