@@ -410,6 +410,7 @@ def list_instance_repository_subscription(instance_name = None , env_name = None
 
         repository_names = []
 
+
         for repository_name in repositories.keys():
 
             repository_names.append(repository_name)
@@ -417,6 +418,7 @@ def list_instance_repository_subscription(instance_name = None , env_name = None
       
 
         for env in environments:
+
 
             for directory in environments[env]:
 
@@ -444,15 +446,50 @@ def list_instance_repository_subscription(instance_name = None , env_name = None
                         
                         collected_data = (SlsGoFru(hash=sls_file_data,phrase=instance_name).found_repos)
 
+                        instance_repository_set = []
+
                         if (collected_data not in data) and (collected_data!={}):
 
                             for repository_highlevel_name in collected_data[env]:
 
                                 if repository_highlevel_name not in repository_names:
 
-                                   pass 
+                                    for directory in environments[env]: 
 
-                            
+                                        content=get_directory_content(dir_path=directory) 
+
+                                            for sls_file_name in content:
+                                            ##
+                                                try:
+
+                                                    sls_file_data = yaml.load('\n'.join(sls_file.readlines()))
+
+                                                    sls_file.close()
+
+                                                except:
+
+                                                    sls_file_data = None
+
+                                                    sls_file.close()
+
+                                                    continue
+
+                                           if (isinstance(sls_file_data, dict)):
+
+                                               instance = SlsGoFru_HighLevelKey(self, high_level_key = repository_highlevel_name , hash=sls_file_data , phrase="pkgrepo.managed")
+
+                                               for key in instance.repos_inside_high_level_key.keys():
+ 
+                                else:
+
+                                 
+                                               
+
+
+
+                           
+
+                            ## 
 
                             print "-- collected data --"
                             print collected_data
