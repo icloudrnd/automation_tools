@@ -13,6 +13,16 @@ from os.path import isfile,isdir
 
 class SlsGoFru_HighLevelKey():
 
+    # Example:
+    #   Input:
+    #   hash= {'a': {'B': {1: 2}}, 1: 2, 'R': {'b': {'1': 2, 'T': {'a': 1}}}, 'b': {1: 2, 3: {'1': {'3': {'a': 1, '3': 2}}}}, '4': {'3': {1: 2, 3: 4}}}
+    #   high_level_key = 'b'
+    #   phrase='a'
+    #   key_of_incoming_hash = None (always use None)
+    #   Output:
+    #   {'3': 1, 'T': 1}
+
+
 
     def __init__(self, high_level_key = None  , key_of_incoming_hash = None  ,  hash=None , phrase=None):
 
@@ -452,49 +462,55 @@ def list_instance_repository_subscription(instance_name = None , env_name = None
 
                         if (collected_data not in data) and (collected_data!={}):
 
-                            print '>>'
-                            print collected_data
-                            print '<<'
 
-                            for repository_highlevel_name in collected_data[env]:
+                            if (collected_data.get(env,None)!=None):
 
-                                if repository_highlevel_name not in repository_names:
+                                for repository_highlevel_name in collected_data[env]:
 
-                                    for directory in environments[env]: 
+                               
+                                    if repository_highlevel_name not in repository_names:
 
-                                        content=get_directory_content(dir_path=directory) 
+                                        for directory in environments[env]: 
 
-                                        for sls_file_name in content:
-                                            ##
-                                            try:
+                                            content=get_directory_content(dir_path=directory) 
 
-                                                sls_file_data = yaml.load('\n'.join(sls_file.readlines()))
 
-                                                sls_file.close()
+                                            for sls_file_name in content:
 
-                                            except:
+                                                sls_file = open(sls_file_name,"r")
 
-                                                sls_file_data = None
+                                                try:
 
-                                                sls_file.close()
+                                                    sls_file = open(sls_file_name,"r")
 
-                                                continue
+                                                    sls_file_data = yaml.load('\n'.join(sls_file.readlines()))
 
-                                            if (isinstance(sls_file_data, dict)):
+                                                    sls_file.close()
 
-                                                instance = SlsGoFru_HighLevelKey(self, high_level_key = repository_highlevel_name , hash=sls_file_data , phrase="pkgrepo.managed")
+                                                except:
 
-                                                for key in instance.repos_inside_high_level_key.keys():
+                                                    sls_file_data = None
 
-                                                    instance_repository_set.append(key)
+                                                    sls_file.close()
+
+                                                    continue
+ 
+                                                 
+                                                if (isinstance(sls_file_data, dict)):
+
+                                                    instance = SlsGoFru_HighLevelKey(high_level_key = repository_highlevel_name , hash=sls_file_data , phrase="pkgrepo.managed")
+ 
+
+                                                    for key in instance.repos_inside_high_level_key.keys():
+
+                                                        instance_repository_set.append(key)
                                                    
  
-                                else:
+                                    else:
 
-                                    instance_repository_set.append(repository_highlevel_name)
+                                        instance_repository_set.append(repository_highlevel_name)
 
-                                 
-                            data.append({env:instance_repository_set})                   
+                                data.append({env:instance_repository_set})                   
 
 
         return data
