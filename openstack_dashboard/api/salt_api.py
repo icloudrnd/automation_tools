@@ -6,7 +6,7 @@
 import salt
 import salt.config
 from salt import runner
-import salt.ext.gdc_groups
+import salt.gdc.groups
 
 #
 from openstack_dashboard.settings import SALT_MASTER_CONFIG
@@ -115,6 +115,20 @@ def get_grains(instance_name=None,*args):
     #return grains_list[instance_name]
     return grains_list.get(instance_name,None)
 
+def get_environment_opts(env_name=None):
+
+    print "==="
+    print opts
+    print type(opts)
+    print "==="
+
+    env_hash = opts['file_roots'][env_name]
+    new_opts = dict(opts)
+    new_opts['file_roots'] = {env_name:env_hash}
+    return new_opts
+
+
+
 def minions_list():
 
      runner = salt.runner.RunnerClient(opts)
@@ -125,7 +139,7 @@ def minions_list():
 
 def minions_list_fast():
 
-     gm = salt.ext.gdc_groups.GdcMatcher()
+     gm = salt.gdc.groups.GdcMatcher()
 
      return gm.get_all_hosts()
 
