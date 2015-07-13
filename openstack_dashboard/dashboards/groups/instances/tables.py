@@ -8,7 +8,14 @@ from collections import defaultdict
 from horizon import tables,exceptions
 from django.core.urlresolvers import reverse
 #
-from openstack_dashboard.api.salt_database_api import get_group_members_wrap, get_member ,   remove_group , remove_member, update_member
+####from openstack_dashboard.api.salt_database_api import get_group_members_wrap, get_member ,   remove_group , remove_member, update_member
+from openstack_dashboard.api.salt_sls_api import get_group_members_sls as get_group_members_wrap 
+from openstack_dashboard.api.salt_sls_api import get_member_sls as get_member
+from openstack_dashboard.api.salt_sls_api import del_group as remove_group
+from openstack_dashboard.api.salt_sls_api import remove_everywhere as remove_member
+from openstack_dashboard.api.salt_sls_api import update_member_sls as update_member
+
+
 
 class EditMemberLink(tables.LinkAction):
     name = "edit_member"
@@ -177,7 +184,7 @@ class MembersTable(tables.DataTable):
     class Meta:
         name = "members"
         verbose_name = _("Members")
-        table_actions = (AddMemberLink,DeleteMembersAction)
+        table_actions = (DeleteMembersAction,AddMemberLink)
         row_actions = (UpdateMemberLink,)
         row_class = UpdateMemberRow
 

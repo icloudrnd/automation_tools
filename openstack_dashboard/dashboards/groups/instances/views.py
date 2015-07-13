@@ -5,7 +5,14 @@ from horizon import exceptions
 from horizon import tabs
 import forms as project_forms
 from openstack_dashboard.dashboards.groups.instances.tables import GroupsTable,MembersTable
-from openstack_dashboard.api.salt_database_api import get_groups , get_members , get_member  ,  get_member_groups , get_group_members , get_group_members_wrap
+###from openstack_dashboard.api.salt_database_api import get_groups , get_members , get_member  ,  get_member_groups , get_group_members , get_group_members_wrap
+
+from openstack_dashboard.api.salt_sls_api import get_groups_sls as  get_groups 
+from openstack_dashboard.api.salt_sls_api import get_members_sls_custom  as get_members
+from openstack_dashboard.api.salt_sls_api import get_member_sls as get_member
+from openstack_dashboard.api.salt_sls_api import get_group_members_sls as get_group_members_wrap
+
+
 #
 #
 from django.utils.translation import ugettext_lazy as _
@@ -95,6 +102,10 @@ class UpdateMemberView(forms.ModalFormView):
 
         try:
 
+
+            print "get_member>>" 
+            print get_member(self.kwargs.get('member_name',None))
+            print "==========>>"
             return get_member(self.kwargs.get('member_name',None))
 
         except Exception:

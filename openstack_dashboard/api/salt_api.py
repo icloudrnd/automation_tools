@@ -32,9 +32,13 @@ from openstack_dashboard.dashboards.patch_management.package import Package as P
 from openstack_dashboard.dashboards.patch_management.package import Instance as Patch_Instance
 #
 from openstack_dashboard.dashboards.patch_management.repository import DebRepository, RpmRepository
+#
+from openstack_dashboard.dashboards.groups.groupmember import Member,Group
 ##
 from horizon import exceptions
 from django.utils.translation import ugettext_lazy as _
+
+from openstack_dashboard.api.salt_sls_api import minions_list_sls
 #
 #
 
@@ -115,18 +119,6 @@ def get_grains(instance_name=None,*args):
     #return grains_list[instance_name]
     return grains_list.get(instance_name,None)
 
-def get_environment_opts(env_name=None):
-
-    print "==="
-    print opts
-    print type(opts)
-    print "==="
-
-    env_hash = opts['file_roots'][env_name]
-    new_opts = dict(opts)
-    new_opts['file_roots'] = {env_name:env_hash}
-    return new_opts
-
 
 
 def minions_list():
@@ -137,7 +129,7 @@ def minions_list():
 
      return minions_list
 
-def minions_list_fast():
+def minions_list_sls():
 
      gm = salt.gdc.groups.GdcMatcher()
 
@@ -147,7 +139,7 @@ def minions_list_custom():
 
     """Minions list table with os column """
 
-    minions_list_base = minions_list_fast()
+    minions_list_base = minions_list_sls()
 
     minions_list_m = []
 
@@ -160,6 +152,10 @@ def minions_list_custom():
         minions_list_m.append(Patch_Instance(name=instance_name, os=os))
 
     return minions_list_m
+
+
+    
+
 
 def install_packages(instance_name=None,packages=[]):
 

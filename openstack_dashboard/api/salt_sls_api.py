@@ -1,5 +1,6 @@
 import salt
 import salt.client
+import salt.gdc.groups
 
 from openstack_dashboard.settings import SALT_MASTER_CONFIG
 from openstack_dashboard.settings import SALT_SLS_DIR
@@ -10,6 +11,8 @@ import yaml
 import operator
 from os import listdir
 from os.path import isfile,isdir
+
+from openstack_dashboard.dashboards.groups.groupmember import Member,Group
 
 class SlsGoFru_HighLevelKey():
 
@@ -414,7 +417,7 @@ def list_instance_repository_subscription(instance_name = None , env_name = None
 
         if environments.get(env_name,None) == None: return []
 
-        environments = {env_name:environments.[env_name]}
+        environments = {env_name:environments[env_name]}
         
 
     all_repos_in_all_environments = list_something_inside_by_key(key_phrase="pkgrepo.managed")
@@ -517,3 +520,158 @@ def list_instance_repository_subscription(instance_name = None , env_name = None
 
 
     return data
+
+
+def get_groups_sls():
+
+    gm = salt.gdc.groups.GdcMatcher()
+    groups = gm.get_groups()
+
+    group_instances = []
+    for group in groups:
+
+        group_instances.append(Group(member_group_name=group,members=gm.get_by_group(group)))
+
+    return group_instances
+
+def get_group_members_sls(group_name):
+
+    gm = salt.gdc.groups.GdcMatcher()
+
+    members = gm.get_by_group(group_name)
+
+    member_instances = []
+
+    for member in members:
+
+        member_instances.append(Member(member_name=member,member_group_names=gm.get_by_host(member)))
+
+    return member_instances
+
+
+
+
+def minions_list_sls():
+
+    gm = salt.gdc.groups.GdcMatcher()
+
+    return gm.get_all_hosts()
+
+def get_members_sls_custom():
+
+    gm = salt.gdc.groups.GdcMatcher()
+
+    member_list = []
+
+    for member_name in minions_list_sls():
+
+
+        member_list.append(Member(member_name = member_name,
+                                      member_group_names = gm.get_by_host(member_name)))
+
+
+    return member_list
+
+def get_group_members_simple_sls(group_name=None):
+
+    gm = salt.gdc.groups.GdcMatcher()
+
+    member_list = []
+
+    for member_name in gm.get_by_group(group_name):
+
+
+        member_list.append(member_name)
+
+
+    return member_list
+
+
+def get_member_sls(member_name=None):
+
+    member_groups = []
+
+    if member_name!= None:
+
+        gm = salt.gdc.groups.GdcMatcher()
+        member_groups = gm.get_by_host(member_name)
+        
+
+    return Member(member_name=member_name,member_group_names=member_groups)
+
+def update_member_sls(member_name=None,member_type='instance',member_group_names=[]):
+
+    gm = salt.gdc.groups.GdcMatcher()
+
+    current_member_groups = gm.get_by_host(member_name)
+
+    add_group = []
+
+    remove_group = []
+
+
+    for new_group in member_group_names:
+
+        if new_group not in current_member_groups:
+
+            add_group.append(new_group)
+
+    for old_group in current_member_groups:
+
+        if old_group not in member_group_names:
+
+            remove_group.append(old_group)
+
+    for group in add_group:
+
+            print '>> join'
+            print member_name.encode('ascii', 'ignore')
+            print group
+            print add_group
+            print '======='
+
+            gm.join_to_group([member_name.encode('ascii', 'ignore')],group.encode('ascii', 'ignore'))
+
+    for group in remove_group:
+
+
+            print '>> remove'
+
+            print member_name.encode('ascii', 'ignore')
+            print group
+            print remove_group
+            print '======='
+            gm.remove_from_group([member_name.encode('ascii', 'ignore')],group.encode('ascii', 'ignore'))
+
+
+    print '>> new_group'
+    print add_group
+    print '>> old_group'
+    print remove_group
+    print '------------'
+    
+    return gm.get_by_host(member_name)
+
+    
+
+        
+def del_group(group_name=None):
+
+    gm = salt.gdc.groups.GdcMatcher()    
+    gm.del_group([group_name])
+
+def remove_everywhere(member_name=None):
+
+    gm = salt.gdc.groups.GdcMatcher()
+    gm.remove_everywhere([member_name])
+
+def create_group_sls(group_name=None):
+
+    gm = salt.gdc.groups.GdcMatcher()
+    gm.add_group({group_name.encode('ascii', 'ignore'):''})
+
+            
+
+    
+
+

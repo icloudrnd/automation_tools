@@ -1,9 +1,12 @@
-from horizon import tabs
+from horizon import tabs,exceptions
 from django.utils.translation import ugettext_lazy as _
 
 from tables import GroupsTable,MembersTable
 
-from openstack_dashboard.api.salt_database_api import get_members, get_groups 
+#from openstack_dashboard.api.salt_database_api import get_members, get_groups 
+from openstack_dashboard.api.salt_sls_api import get_groups_sls as  get_groups
+from openstack_dashboard.api.salt_sls_api import get_members_sls_custom  as get_members
+
 
 class GroupsTab(tabs.TableTab):
     table_classes = (GroupsTable,)

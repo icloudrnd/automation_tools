@@ -3,7 +3,19 @@ from horizon import exceptions
 from horizon import messages
 
 #
-from openstack_dashboard.api.salt_database_api import create_member_group , create_member ,  get_groups , get_members , get_group_members , update_member , get_member
+#from openstack_dashboard.api.salt_database_api import create_member_group , create_member ,  get_groups , get_members , get_group_members , update_member , get_member
+
+from openstack_dashboard.api.salt_sls_api import create_group_sls as  create_member_group
+from openstack_dashboard.api.salt_sls_api import get_groups_sls as  get_groups
+from openstack_dashboard.api.salt_sls_api import get_members_sls_custom  as get_members
+from openstack_dashboard.api.salt_sls_api import get_member_sls as get_member
+from openstack_dashboard.api.salt_sls_api import get_group_members_sls as get_group_members_wrap
+from openstack_dashboard.api.salt_sls_api import update_member_sls as update_member
+from openstack_dashboard.api.salt_sls_api import get_group_members_simple_sls as get_group_members
+
+
+
+
 from openstack_dashboard.api.salt_api import minions_list
 from django.utils.translation import ugettext_lazy as _
 
@@ -75,6 +87,7 @@ class UpdateMemberForm(forms.SelfHandlingForm):
             self.fields['membergroups'].choices = member_groups_tuple
 
         else:
+
             for group in get_groups():
 
                 member_groups_tuple.append((str(group.id),str(group.id)))
@@ -86,15 +99,21 @@ class UpdateMemberForm(forms.SelfHandlingForm):
 
     def handle(self, request, data):
 
+        print '<< update_member handle'
+
         try:
+
 
             member_name=data['id']
             member_groups=data['membergroups']
             member_type=data['member_types']
             result = update_member(member_name=member_name,member_type=member_type,member_group_names=member_groups)
+      
+            print "====" 
+            print result
+            print "===="
         
             return True
-
 
 
         except Exception:
@@ -156,7 +175,8 @@ class AddMemberForm(forms.SelfHandlingForm):
 
                     if minion not in registered_members:
 
-                        create_member(member_name=minion,member_type="instance",member_group_names=[])
+                        pass
+                        #create_member(member_name=minion,member_type="instance",member_group_names=[])
             
 
             return True
