@@ -1,6 +1,6 @@
 class Member():
 
-    def __init__(self,member_name=None,member_type=None,member_group_names=[]):
+    def __init__(self,member_name=None,member_type='instance',member_group_names=[]):
 
         self.id = member_name
         self.member_type = member_type

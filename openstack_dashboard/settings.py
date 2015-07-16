@@ -65,8 +65,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'salt',
         'USER': 'salt',
-        'PASSWORD': 'salt',
-        'HOST': '10.10.111.48',
+        'PASSWORD': 'OpenStack123',
+        'HOST': '10.10.111.225',
         'PORT': '5432',
     }
 }

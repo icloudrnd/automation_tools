@@ -433,6 +433,10 @@ def list_instance_repository_subscription(instance_name = None , env_name = None
 
             repository_names.append(repository_name)
 
+
+    print '--- repository_names ---'
+    print repository_names
+    print '---                  ---'
       
 
     for env in environments:
@@ -473,7 +477,14 @@ def list_instance_repository_subscription(instance_name = None , env_name = None
 
                             for repository_highlevel_name in collected_data[env]:
 
-                               
+                                #
+                                #
+                                # Go inside and find repository hidden under high level key
+                                #
+                                # 
+                                print '-- repository_highlevel_name --'
+                                print repository_highlevel_name
+                                print '--                           --'
                                 if repository_highlevel_name not in repository_names:
 
                                     for directory in environments[env]: 
@@ -505,6 +516,10 @@ def list_instance_repository_subscription(instance_name = None , env_name = None
                                             if (isinstance(sls_file_data, dict)):
 
                                                 instance = SlsGoFru_HighLevelKey(high_level_key = repository_highlevel_name , hash=sls_file_data , phrase="pkgrepo.managed")
+
+                                                print '- repos_inside_high_level_key -'
+                                                print instance.repos_inside_high_level_key
+                                                print '-                             -'
  
 
                                                 for key in instance.repos_inside_high_level_key.keys():
@@ -624,31 +639,11 @@ def update_member_sls(member_name=None,member_type='instance',member_group_names
 
     for group in add_group:
 
-            print '>> join'
-            print member_name.encode('ascii', 'ignore')
-            print group
-            print add_group
-            print '======='
-
             gm.join_to_group([member_name.encode('ascii', 'ignore')],group.encode('ascii', 'ignore'))
 
     for group in remove_group:
 
-
-            print '>> remove'
-
-            print member_name.encode('ascii', 'ignore')
-            print group
-            print remove_group
-            print '======='
             gm.remove_from_group([member_name.encode('ascii', 'ignore')],group.encode('ascii', 'ignore'))
-
-
-    print '>> new_group'
-    print add_group
-    print '>> old_group'
-    print remove_group
-    print '------------'
     
     return gm.get_by_host(member_name)
 
