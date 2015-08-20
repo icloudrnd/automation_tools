@@ -114,10 +114,10 @@ def get_grains(instance_name=None,*args):
 
     grains_list = local.cmd(instance_name,'grains.item',grains_names)
 
-    grains_list.get('group_name',None)
+    #grains_list.get('group_name',None)
 
     #return grains_list[instance_name]
-    return grains_list.get(instance_name,None)
+    return grains_list.get(instance_name,{})
 
 
 
@@ -147,8 +147,7 @@ def minions_list_custom():
 
     for instance_name in minions_list_base:
 
-        os = get_grains(instance_name,GRAIN_NAME)[GRAIN_NAME]
-
+        os = get_grains(instance_name,GRAIN_NAME).get(GRAIN_NAME,"Unknown")
         minions_list_m.append(Patch_Instance(name=instance_name, os=os))
 
     return minions_list_m
